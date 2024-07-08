@@ -1,23 +1,24 @@
-import 'dart:developer';
-
-import 'package:car_pool/common/custom_snackbar.dart';
-import 'package:car_pool/features/home/widgets/debouncer.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 
+import '../../../common/custom_snackbar.dart';
 import '../../../controllers/locations_controller.dart';
 import '../../../core/colors.dart';
 import '../../../core/radii.dart';
-import 'dotted_line.dart';
+import '../../../core/textstyles.dart';
+import 'debouncer.dart';
+import 'icons_appending_dotted_line.dart';
 import 'past_location_tile.dart';
 import 'places_button.dart';
+import 'preset_frequent_place_buttons.dart';
+import 'pull_up_tab.dart';
 
 class DestinationPanel extends StatelessWidget {
   final ScrollController controller;
   final double maxPanelHeight;
 
-  DestinationPanel({
+  const DestinationPanel({
     super.key,
     required this.controller,
     required this.maxPanelHeight,
@@ -25,6 +26,28 @@ class DestinationPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pastLocationTiles = [
+      const PastLocationsTile(
+        title: 'Work',
+        subtitle: '67, Grand Central Pkwy, New York',
+      ),
+      const PastLocationsTile(
+        title: 'Home',
+        subtitle: '67, Grand Central Pkwy, New York',
+      ),
+      const PastLocationsTile(
+        title: '67, Grand Central Pkwy, New York',
+        subtitle: '67, Grand Central Pkwy, New York',
+      ),
+      const PastLocationsTile(
+        title: '67, Grand Central Pkwy, New York',
+        subtitle: '67, Grand Central Pkwy, New York',
+      ),
+      const PastLocationsTile(
+        title: '67, Grand Central Pkwy, New York',
+        subtitle: '67, Grand Central Pkwy, New York',
+      ),
+    ];
     final locationsController = Get.put(LocationsController());
     const placeButtons = [
       PlacesButton(name: "Home"),
@@ -37,21 +60,7 @@ class DestinationPanel extends StatelessWidget {
       constraints: BoxConstraints(maxHeight: maxPanelHeight),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 14.0),
-            child: SizedBox(
-              height: 55,
-              child: ListView.separated(
-                separatorBuilder: (context, index) => const SizedBox(
-                  width: 12,
-                ),
-                itemCount: placeButtons.length,
-                itemBuilder: (context, index) => placeButtons[index],
-                padding: const EdgeInsets.all(6),
-                scrollDirection: Axis.horizontal,
-              ),
-            ),
-          ),
+          PreSetFrequentPlaceButtons(placeButtons: placeButtons),
           Expanded(
             child: Container(
               width: double.infinity,
@@ -77,19 +86,7 @@ class DestinationPanel extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     children: [
-                      Container(
-                        // the pull up tab
-                        width: 34,
-                        height: 5,
-                        clipBehavior: Clip.hardEdge,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(radiusCircular20),
-                        ),
-                        child: const Divider(
-                          thickness: 5,
-                          color: tinyDividerColor,
-                        ),
-                      ),
+                      PullUpTab(),
                       const SizedBox(
                         // space after pull up tab
                         height: 12,
@@ -97,22 +94,7 @@ class DestinationPanel extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.radio_button_checked_outlined,
-                                size: 16,
-                                color: Color.fromRGBO(47, 76, 212, 1),
-                              ),
-                              DottedLine(),
-                              Icon(
-                                Icons.location_on,
-                                size: 22,
-                                color: Color.fromRGBO(0, 209, 21, 1),
-                              )
-                            ],
-                          ),
+                          IconsAppendingDottedLine(),
                           Expanded(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -162,10 +144,7 @@ class DestinationPanel extends StatelessWidget {
                                       border: InputBorder.none,
                                       alignLabelWithHint: true,
                                       hintText: "Start location",
-                                      hintStyle: TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: addressBarHintColor,
-                                      ),
+                                      hintStyle: homeAddressBarHintTS,
                                     ),
                                   ),
                                 ),
@@ -217,10 +196,7 @@ class DestinationPanel extends StatelessWidget {
                                       border: InputBorder.none,
                                       alignLabelWithHint: true,
                                       hintText: "Destination",
-                                      hintStyle: TextStyle(
-                                        fontFamily: "Poppins",
-                                        color: addressBarHintColor,
-                                      ),
+                                      hintStyle: homeAddressBarHintTS,
                                     ),
                                   ),
                                 ),
@@ -257,27 +233,4 @@ class DestinationPanel extends StatelessWidget {
       ),
     );
   }
-
-  final pastLocationTiles = [
-    const PastLocationsTile(
-      title: 'Work',
-      subtitle: '67, Grand Central Pkwy, New York',
-    ),
-    const PastLocationsTile(
-      title: 'Home',
-      subtitle: '67, Grand Central Pkwy, New York',
-    ),
-    const PastLocationsTile(
-      title: '67, Grand Central Pkwy, New York',
-      subtitle: '67, Grand Central Pkwy, New York',
-    ),
-    const PastLocationsTile(
-      title: '67, Grand Central Pkwy, New York',
-      subtitle: '67, Grand Central Pkwy, New York',
-    ),
-    const PastLocationsTile(
-      title: '67, Grand Central Pkwy, New York',
-      subtitle: '67, Grand Central Pkwy, New York',
-    ),
-  ];
 }

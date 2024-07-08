@@ -1,10 +1,7 @@
-import 'package:car_pool/core/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:math' as math;
 
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-
+import '../../core/textstyles.dart';
 import 'widgets/login_page_with_fields.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -24,11 +21,7 @@ class SplashScreen extends StatelessWidget {
                   child: Center(
                     child: const Text(
                       'Get a new experience',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white),
+                      style: splashPageSubTitleTS,
                     )
                         .animate(delay: 1000.ms)
                         .fade(begin: 1, end: 0, delay: 600.ms),
@@ -43,19 +36,15 @@ class SplashScreen extends StatelessWidget {
               child: Center(
                 child: RichText(
                   text: const TextSpan(
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 44,
-                    ),
+                    style: splashPageAppTitleTextSpanTS,
                     children: <TextSpan>[
                       TextSpan(
                         text: 'Car',
-                        style: TextStyle(color: Colors.white),
+                        style: splashPageAppTitleCarTS,
                       ),
                       TextSpan(
                         text: 'Pool',
-                        style: TextStyle(color: Colors.yellow),
+                        style: splashPageAppTitlePoolTS,
                       ),
                     ],
                   ),

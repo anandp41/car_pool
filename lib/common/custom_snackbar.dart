@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../core/textstyles.dart';
+
 SnackbarController showCustomSnackBar({
   required String message,
   bool isDismissible = true,
@@ -25,7 +27,7 @@ SnackbarController showCustomSnackBar({
       message: message,
       messageText: Text(
         message,
-        style: const TextStyle(fontFamily: 'Poppins', color: Colors.black),
+        style: snackbarTS,
       ),
       isDismissible: isDismissible));
 }

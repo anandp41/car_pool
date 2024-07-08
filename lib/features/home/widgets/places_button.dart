@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/colors.dart';
+import '../../../core/textstyles.dart';
 
 class PlacesButton extends StatelessWidget {
   final String name;
@@ -12,7 +13,6 @@ class PlacesButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(25),
@@ -34,11 +34,7 @@ class PlacesButton extends StatelessWidget {
           ),
           Text(
             name,
-            style: const TextStyle(
-                fontFamily: "Poppins",
-                fontWeight: FontWeight.w400,
-                color: disabledGrey,
-                fontSize: 14),
+            style: placesButtonNameTS,
           ),
           const SizedBox(
             width: 34,

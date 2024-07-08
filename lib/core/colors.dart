@@ -11,3 +11,6 @@ const dividerColor = Color.fromRGBO(213, 221, 224, 1);
 const retryRed = Color.fromRGBO(114, 0, 0, 1);
 const loginButtonGreen = Color.fromRGBO(0, 177, 49, 1);
 const authorizedTickGreen = Color.fromRGBO(0, 170, 58, 1);
+const resendCodeBlue = Color.fromRGBO(47, 76, 212, 1);
+const startLocationColor = Color.fromRGBO(47, 76, 212, 1);
+const endLocationColor = Color.fromRGBO(0, 209, 21, 1);

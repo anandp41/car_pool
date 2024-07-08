@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/colors.dart';
+import '../../../core/textstyles.dart';
 
 class PastLocationsTile extends StatelessWidget {
   final String title;
@@ -25,19 +26,9 @@ class PastLocationsTile extends StatelessWidget {
         ),
       ),
       title: Text(title),
-      titleTextStyle: const TextStyle(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w600,
-        fontSize: 13,
-        color: activeIconColor,
-      ),
+      titleTextStyle: pastLocationTileTitleTS,
       subtitle: Text(subtitle),
-      subtitleTextStyle: const TextStyle(
-        fontFamily: 'Poppins',
-        fontSize: 13,
-        fontWeight: FontWeight.w300,
-        color: activeGray,
-      ),
+      subtitleTextStyle: pastLocationTileSubtitleTS,
     );
   }
 }

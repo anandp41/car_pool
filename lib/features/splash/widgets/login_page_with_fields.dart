@@ -1,13 +1,15 @@
-import 'dart:developer';
-
-import 'package:car_pool/features/home/screen/home.dart';
-import 'package:car_pool/features/splash/widgets/formatted_textfield.dart';
+//This file/class has least refactorability as reference to an enclosing class method cannot be extracted.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:twilio_flutter/twilio_flutter.dart';
 
+import '../../../common/custom_snackbar.dart';
 import '../../../core/colors.dart';
+import '../../../core/textstyles.dart';
+import '../../../core/twilio_file_not_to_be_tracked.dart';
+import '../../home/screen/home.dart';
 
 class LoginPageWithFields extends StatefulWidget {
   const LoginPageWithFields({
@@ -23,7 +25,10 @@ class LoginPageWithFields extends StatefulWidget {
 
 class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
   bool authorized = false;
-
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+  var twilioFlutter = TwilioFlutter(
+      accountSid: accountSID, authToken: authToken, twilioNumber: twilioNumber);
   String _formatNumber(String number) {
     String digitsOnly = number.replaceAll(RegExp(r'\D'), '');
     String formatted = '';
@@ -37,6 +42,122 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
     return formatted;
   }
 
+  Future<void> _sendOtp() async {
+    try {
+      await twilioFlutter.sendVerificationCode(
+          verificationServiceId: serviceSID,
+          recipient: '+91${_phoneNumberController.text.replaceAll(' ', '')}',
+          verificationChannel: VerificationChannel.SMS);
+    } catch (error) {
+      showCustomSnackBar(message: error.toString());
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    TwilioResponse response = await twilioFlutter.verifyCode(
+        verificationServiceId: 'sid',
+        recipient: '+91${_phoneNumberController.text.replaceAll(' ', '')}',
+        code: _otpController.text.trim());
+    if (response.metadata!['status'] == 'approved') {
+      Get.to(const Home());
+    } else {
+      showCustomSnackBar(message: 'Invalid OTP');
+    }
+  }
+
+  void _showOtpDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          titlePadding: const EdgeInsets.all(0),
+          title: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    iconSize: 20,
+                    color: Colors.black,
+                    onPressed: () {
+                      Get.back();
+                    },
+                  ),
+                ),
+                const Text(
+                  'Verify your Mobile',
+                  style: loginPageOtpVerifyPopUpHeadingTS,
+                ),
+              ],
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: loginPageOtpVerifyPopUpTextSpanTS,
+                    children: <TextSpan>[
+                      const TextSpan(
+                          text:
+                              'Verification code has been sent to your registered mobile '),
+                      TextSpan(
+                        text:
+                            'XXXX XXX ${_phoneNumberController.text.substring(8)}',
+                        style: otpVerifyPopUpNumberTS,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              TextField(
+                onChanged: (value) async {
+                  if (value.length == 6) {
+                    await _verifyOtp();
+                    _otpController.clear();
+                    Get.back();
+                  }
+                },
+                textAlign: TextAlign.center,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
+                ],
+                controller: _otpController,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: activeGray)),
+                    hintText: 'Enter OTP *',
+                    hintStyle: loginPageOtpVerifyPopUpEnterOtpFieldTS),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                await _sendOtp();
+              },
+              child: const Text('Resend Code',
+                  style: loginPageOtpVerifyPopUpResendCodeTS),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -44,6 +165,7 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
       child: Column(
         children: [
           TextFormField(
+            controller: _phoneNumberController,
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
@@ -58,10 +180,7 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
                 );
               }),
             ],
-            style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500),
+            style: loginPageFieldsInputTS,
             decoration: InputDecoration(
                 suffixIcon: Padding(
                   padding: const EdgeInsets.all(12.0),
@@ -93,17 +212,14 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
                   color: activeGray,
                 ),
                 hintText: "Mobile Number*",
-                hintStyle: const TextStyle(
-                    color: activeGray,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w400),
+                hintStyle: loginPageMobileNumberHintTS,
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: activeGray))),
             onChanged: (value) {
               var str = value.replaceAll(' ', '');
               if (str == '9895000111') {
-                log("Match--------");
+                //Checks for given number 9895000111
                 setState(() {
                   authorized = true;
                 });
@@ -114,104 +230,39 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
               }
             },
           ),
-          Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500),
-                decoration: InputDecoration(
-                    hintText: "Full Name",
-                    hintStyle: const TextStyle(
-                        color: activeGray,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: activeGray))),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500),
-                decoration: InputDecoration(
-                    hintText: "Email",
-                    hintStyle: const TextStyle(
-                        color: activeGray,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: activeGray))),
-              ),
-              const SizedBox(
-                height: 40,
-              ),
-            ],
-          ).animate().fade(begin: 1, end: authorized ? 0 : 1),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: RichText(
-              textAlign: TextAlign.left,
-              text: const TextSpan(
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
-                ),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: 'By clicking continue, you agree to our\n',
-                  ),
-                  TextSpan(
-                    text: 'Terms of Service & Privacy Policy',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          FadeableFieldsinLogin()
+              .animate()
+              .fade(begin: 1, end: authorized ? 0 : 1),
+          TandC(),
           const SizedBox(
             height: 20,
           ),
           ElevatedButton(
               onPressed: () {
                 if (authorized) {
-                  Get.to(Home());
-                } else {}
+                  Get.to(const Home());
+                } else {
+                  _sendOtp();
+                  _showOtpDialog();
+                }
               },
               style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                  shape: WidgetStateProperty.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8))),
                   fixedSize:
-                      WidgetStatePropertyAll(Size(widget.screenWidth, 55)),
+                      WidgetStateProperty.all(Size(widget.screenWidth, 55)),
                   backgroundColor:
                       const WidgetStatePropertyAll(loginButtonGreen)),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25),
+                padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      authorized ? "Continue" : "Login",
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          color: Colors.white),
+                      authorized ? "Login" : "Continue",
+                      style: loginPageLoginButtonTS,
                     ),
-                    Icon(
+                    const Icon(
                       Icons.arrow_forward,
                       size: 30,
                       color: Colors.white,
@@ -221,6 +272,75 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
               ))
         ],
       ),
+    );
+  }
+}
+
+class TandC extends StatelessWidget {
+  const TandC({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: RichText(
+        textAlign: TextAlign.left,
+        text: const TextSpan(
+          style: loginPageTandCTextSpanTS,
+          children: <TextSpan>[
+            TextSpan(
+              text: 'By clicking continue, you agree to our\n',
+            ),
+            TextSpan(
+              text: 'Terms of Service & Privacy Policy',
+              style: loginPageTandCBoldLettersSecondLine,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class FadeableFieldsinLogin extends StatelessWidget {
+  const FadeableFieldsinLogin({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        TextFormField(
+          style: loginPageFieldsInputTS,
+          decoration: InputDecoration(
+              hintText: "Full Name",
+              hintStyle: loginPageMobileNumberHintTS,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: activeGray))),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        TextFormField(
+          style: loginPageFieldsInputTS,
+          decoration: InputDecoration(
+              hintText: "Email",
+              hintStyle: loginPageMobileNumberHintTS,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: activeGray))),
+        ),
+        const SizedBox(
+          height: 40,
+        ),
+      ],
     );
   }
 }

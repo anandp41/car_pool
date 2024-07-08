@@ -41,6 +41,10 @@ flutter:
       fonts:
         - asset: assets/fonts/Inter-Bold.ttf
           weight: 700
+    - family: Helvetica
+      fonts:
+        - asset: assets/fonts/Helvetica-Bold.ttf
+          weight: 700
   uses-material-design: true
   assets:
     - assets/images/

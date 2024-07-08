@@ -1,7 +1,7 @@
-import 'package:car_pool/features/home/screen/home.dart';
-import 'package:car_pool/features/splash/spash.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'features/splash/spash.dart';
 
 void main() {
   runApp(const MainApp());
