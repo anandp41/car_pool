@@ -1,4 +1,5 @@
 //This file/class has least refactorability as reference to an enclosing class method cannot be extracted.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -55,11 +56,12 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
 
   Future<void> _verifyOtp() async {
     TwilioResponse response = await twilioFlutter.verifyCode(
-        verificationServiceId: 'sid',
+        verificationServiceId: serviceSID,
         recipient: '+91${_phoneNumberController.text.replaceAll(' ', '')}',
         code: _otpController.text.trim());
     if (response.metadata!['status'] == 'approved') {
-      Get.to(const Home());
+      Get.back();
+      Get.to(() => const Home());
     } else {
       showCustomSnackBar(message: 'Invalid OTP');
     }
@@ -124,8 +126,6 @@ class _LoginPageWithFieldsState extends State<LoginPageWithFields> {
                 onChanged: (value) async {
                   if (value.length == 6) {
                     await _verifyOtp();
-                    _otpController.clear();
-                    Get.back();
                   }
                 },
                 textAlign: TextAlign.center,

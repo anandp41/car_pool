@@ -9,7 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
-lib/core/twilio_file_not_to_be_tracked.dart
+# lib/core/twilio_file_not_to_be_tracked.dart
 
 # IntelliJ related
 *.iml
